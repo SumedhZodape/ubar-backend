@@ -17,40 +17,46 @@ export const registerCaptain = async (req, res) =>{
         vehicleNo
      } = req.body;
 
-     console.log(req.body)
+     const findCaptain = await Captain.findOne({email:email })
+
+     if(findCaptain){
+      return res.send({success: false, message: "User already exist!"})
+     }
 
      const profilePic = req.files?.profilePic[0].filename;
      const vehiclePic = req.files?.vehiclePic[0].filename;
 
-     const captain = new Captain({
-        name,
-        email,
-        mobileno,
-        dob,
-        location,
-        address,
-        profilePic,
-        vehicleType,
-        vehiclePic,
-        vehicleNo,
-        drivingLicenceNo,
-        password
-     })
+   try{
+      const captain = new Captain({
+         name,
+         email,
+         mobileno,
+         dob,
+         location,
+         address,
+         profilePic,
+         vehicleType,
+         vehiclePic,
+         vehicleNo,
+         drivingLicenceNo,
+         password
+      })
+      await captain.save();
+      await sendMail({
+         to: email,
+         subject:"Captain Registraion",
+         text: `Hi ${name}, your captain registraion is pending approval.`
+      })
 
-
-
-     await captain.save();
-
-
-     await sendMail({
-        to: email,
-        subject:"Captain Registraion",
-        text: `Hi ${name}, your captain registraion is pending approval.`
-     })
-
-     res.send({
-        success: true,
-        message: "Captain registed successfully."
-     })
+      res.send({
+         success: true,
+         message: "Captain registed successfully."
+      })
+   }catch(err){
+      res.send({
+         success: false,
+         message: "Sever Error!"
+      })
+   }
 
 }

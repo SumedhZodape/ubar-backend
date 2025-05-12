@@ -3,17 +3,19 @@ import { config } from '../config/env.js';
 
 
 let transporter = nodemailer.createTransport({
-    service:"gmail",
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
     auth:{
         user:"sumedhzodape8003@gmail.com",
-        pass: config.apiKey
+        pass: "lftp sagn lweq ibjk"
     }
 })
 
 export default async function sendMail({to, subject, text}){
 
     const mailOption = {
-        from:"sumedhzodape8003@gmail.com",
+        from:'"Ubar App" <sumedhzodape8003@gmail.com>',
         to:to,
         subject:subject,
         text:text
