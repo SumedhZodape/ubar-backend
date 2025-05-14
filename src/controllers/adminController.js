@@ -1,4 +1,4 @@
-import {Admin} from '../models/index.js';
+import {Admin, Captain} from '../models/index.js';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env.js';
 import bcrypt from 'bcrypt';
@@ -75,4 +75,12 @@ export const login = async(req, res)=>{
 
 }
 
+export const getCaptains = async(req, res) =>{
+    try {
+        const captains = await Captain.find();
+        res.send({success: true, result: captains})
+    } catch (error) {
+        res.send({success: false, message: "Server Error!"})
+    }
+}
 
