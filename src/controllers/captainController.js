@@ -1,5 +1,8 @@
 import { Captain } from '../models/index.js';
 import sendMail from '../utils/mail.js'
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { config } from '../config/env.js';
 
 // register
 export const registerCaptain = async (req, res) =>{
@@ -58,5 +61,47 @@ export const registerCaptain = async (req, res) =>{
          message: "Sever Error!"
       })
    }
+
+}
+
+
+export const login = async(req, res)=>{
+
+   const { email, password } = req.body;
+   
+       if(!email || !password){
+           return res.send({success: false, message: "All fields are required!"});
+       }
+   
+       try{
+   
+           const captain = await Captain.findOne({email});
+   
+           if(!captain){
+               return res.send({success: false, message: "Invalid Credential!"})
+           }
+
+           if(captain.status !== "Approved"){
+               return res.send({success: false, message:"Request is not yet approved!, contact to your admin"})
+           }
+   
+           const isMatch = await bcrypt.compare(password, captain.password);
+   
+           if(!isMatch){
+               return res.send({success: false, message: "Invalid Password!"})
+           }
+   
+           const token = jwt.sign({id: captain._id}, config.secretKey, {expiresIn: '1h'});
+   
+           res.send({
+               success: true,
+               message: "Captain Logged in successfully",
+               token: token
+           })
+   
+       }catch(err){
+           console.log(err)
+           res.send({success: false, message: "Server Error!", err})
+       }
 
 }

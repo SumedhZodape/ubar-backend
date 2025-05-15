@@ -2,6 +2,7 @@ import {Admin, Captain} from '../models/index.js';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env.js';
 import bcrypt from 'bcrypt';
+import sendMail from '../utils/mail.js';
 
 
 // admin registration controller
@@ -82,5 +83,40 @@ export const getCaptains = async(req, res) =>{
     } catch (error) {
         res.send({success: false, message: "Server Error!"})
     }
+}
+
+// update captain status 
+export const updateStatus = async(req, res)=>{
+   const { captainId } = req.params;
+   const { status } = req.body;
+
+   if(!["Approved", "Rejected", "Blocked"].includes(status)){
+    return res.send({success: false, message:"Invalid Status!"});
+   }
+
+   try {
+
+    const captain = await Captain.findById(captainId);
+
+    if(!captain){
+        return res.send({success: false, message:"Captain not found."})
+    }
+
+    captain.status = status;
+    await captain.save();
+
+    await sendMail({
+        to: captain.email,
+        subject:`Captain Status Update: ${status}`,
+        text: `Hi ${captain.name}, your status has been updated to ${status}.`
+    })
+
+    res.send({success: true, message: `Captain Status Update: ${status}`})
+    
+   } catch (error) {
+    console.log(error)
+    res.send({success: false, message: "Server Error"})
+   }
+
 }
 

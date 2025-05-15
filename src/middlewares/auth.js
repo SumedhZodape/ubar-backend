@@ -5,7 +5,6 @@ import { Admin } from '../models/index.js';
 
 export const adminAuth = async(req, res, next)=>{
     const token = req.headers.authorization?.split(' ')[1];
-    console.log(token)
     
     if(!token){
         return res.send({success: false, message:"No token provided!"})
