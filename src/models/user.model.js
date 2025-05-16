@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
     mobileNo: {type: String, required: true},
     email:{type: String, required: true, unique: true},
     location: {
-        type: geoLocationSchema,
+        type: geoLocationSchema, 
         required: true
     },
     password: {type: String, required: true}

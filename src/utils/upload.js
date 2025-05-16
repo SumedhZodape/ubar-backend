@@ -32,7 +32,6 @@ const upload = multer({storage: storage}).fields([
 export const uploadMiddleware = (req, res, next) =>{
     upload(req, res, (err)=>{
         if(err){
-            console.log(err)
             return res.send({message:"Multer Errror", err})
         }
         next()
