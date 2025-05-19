@@ -1,6 +1,7 @@
 import express from "express";
 import { registerCaptain, login } from "../controllers/captainController.js";
-import { uploadMiddleware } from "../utils/upload.js"
+import { uploadMiddleware } from "../utils/upload.js";
+import { captainAuth } from "../middlewares/auth.js";
 
 const router = express.Router();
 
