@@ -93,6 +93,9 @@ export const login = async(req, res)=>{
    
            const token = jwt.sign({id: captain._id}, config.secretKey, {expiresIn: '1h'});
    
+           captain.isOnline = true,
+           await captain.save()
+
            res.send({
                success: true,
                message: "Captain Logged in successfully",

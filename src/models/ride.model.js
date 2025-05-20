@@ -3,7 +3,7 @@ import geoLocationSchema from "./geoLocation.model.js";
 
 
 const rideSchema = new mongoose.Schema({
-    userI: {
+    userId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'
     },
@@ -15,18 +15,23 @@ const rideSchema = new mongoose.Schema({
         type:geoLocationSchema,
         required: true
     },
-    endtLocation: {
+    endLocation: {
         type: geoLocationSchema,
         required: true
     },
-    otp: {type: String, required: true},
+    otp: {type: String},
     distance: {type: Number, required: true},
     price: {type: Number, required: true},
     status: {
         type: String,
         enum:['Requested', 'Accepted', 'Ride Started', 'Completed', 'Cancelled'],
         default: 'Requested'
-    }
+    },
+    vehicleType: {
+        type: String,
+        enum: ['Auto', 'TwoWheeler', 'Car'],
+        required: true
+    },
 },{timestamps: true})
 
 

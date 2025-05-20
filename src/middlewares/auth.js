@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env.js';
-import { Admin, Captain } from '../models/index.js';
+import { Admin, Captain, User } from '../models/index.js';
 
 
 export const adminAuth = async(req, res, next)=>{
