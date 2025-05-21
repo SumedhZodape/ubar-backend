@@ -28,6 +28,22 @@ export const registerCaptain = async (req, res) =>{
 
      const profilePic = req.files?.profilePic[0].filename;
      const vehiclePic = req.files?.vehiclePic[0].filename;
+     console.log(location)
+     let parsedLocation;
+
+     try{
+        parsedLocation = typeof location === 'string'? JSON.parse(location) : location;
+        if(!parsedLocation || 
+            !parsedLocation.type === 'Point' ||
+            !Array.isArray(parsedLocation.coordinates) ||
+            typeof parsedLocation.coordinates[0] !== 'number' ||
+            typeof parsedLocation.coordinates[1] !== 'number'
+        ){
+            return res.send({success: false, message:"Invalid Location!"})
+        }
+     }catch(err){
+        return res.send({success: false, message:"Invalid Location!"})
+     }
 
    try{
       const captain = new Captain({
@@ -35,7 +51,7 @@ export const registerCaptain = async (req, res) =>{
          email,
          mobileno,
          dob,
-         location,
+         location : parsedLocation,
          address,
          profilePic,
          vehicleType,

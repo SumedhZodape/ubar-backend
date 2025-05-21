@@ -1,7 +1,9 @@
-import { Captain, User } from '../models/index.js'
+import { Captain, User, Ride } from '../models/index.js'
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import {config} from '../config/env.js';
+import { calculateDistance } from '../utils/calculateDistance.js';
+import sendMail from '../utils/mail.js';
 
 export const register = async(req, res)=>{
     const {
@@ -95,6 +97,23 @@ export const bookCab = async(req, res)=>{
         return res.send({success:false, message:"Invalid vehicle type!"})
     }
 
+     try{
+        if(!startLocation || !endLocation ||
+            !startLocation.type === 'Point' ||
+            !endLocation.type === 'Point' ||
+            !Array.isArray(startLocation.coordinates) ||
+            typeof startLocation.coordinates[0] !== 'number' ||
+            typeof startLocation.coordinates[1] !== 'number' || 
+            !Array.isArray(endLocation.coordinates) ||
+            typeof endLocation.coordinates[0] !== 'number' ||
+            typeof endLocation.coordinates[1] !== 'number'
+
+        ){
+            return res.send({success: false, message:"Invalid Location!"})
+        }
+     }catch(err){
+        return res.send({success: false, message:"Invalid Location!"})
+     }
 
     try{
 
@@ -102,7 +121,7 @@ export const bookCab = async(req, res)=>{
             location:{
                 $near: {
                     $geometry: startLocation,
-                    $maxDistace: 4000
+                    $maxDistance: 4000
                 }
             },
             vehicleType,
@@ -115,20 +134,39 @@ export const bookCab = async(req, res)=>{
                 captins available within 4km.`})
         }
 
-        const distance = 5;
+        const distance = calculateDistance(
+            startLocation.coordinates,
+            endLocation.coordinates
+        );
+
 
         const price = distance * (
             vehicleType === 'Car'? 15: vehicleType === 'Auto' ? 10 : 5
         )
 
-        console.log(price)
-
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
-        console.log(otp)
 
-        res.send({success: true, meesage:"Test"})
+        const ride = new Ride({
+            userId,
+            startLocation,
+            endLocation,
+            otp,
+            distance,
+            price: parseFloat(price.toFixed(2)),
+            vehicleType
+        })
+
+        await ride.save()
+
+        await sendMail({
+            to: captains[0].email,
+            subject:"New Ride Request",
+            text:`Hi ${captains[0].name}, a new ride request has been 
+            has been created. Please check your dashboard to accept the ride. Ride ID: ${ride._id}`
+        })
+
+        res.send({success: true, meesage:"Ride request created successfully"})
     }catch(err){
-        console.log(err)
         res.send({success: false, message:"Server Error"})
     }
 
