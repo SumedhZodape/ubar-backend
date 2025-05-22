@@ -1,4 +1,4 @@
-import { Captain } from '../models/index.js';
+import { Captain, Ride } from '../models/index.js';
 import sendMail from '../utils/mail.js'
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
@@ -123,4 +123,104 @@ export const login = async(req, res)=>{
            res.send({success: false, message: "Server Error!", err})
        }
 
+}
+
+export const getRideInfo = async(req, res) =>{
+
+    const id = req.params.id;
+
+    try {
+        
+        const ride = await Ride.findById(id);
+
+        if(!ride){
+            return res.send({success: false, message:"Ride not found."})
+        }
+
+        res.send({success: true, result: ride})
+
+    } catch (error) {
+        res.send({success: false, message:"Server Error!"})
+    }
+}
+
+export const approveRequest = async(req, res) =>{
+    const id = req.params.id;
+
+    try{
+
+        const ride = await Ride.findById(id);
+
+        if(!ride){
+            return res.send({success: false, message:"Ride not found."})
+        }
+
+        if(ride.status != 'Requested'){
+            return res.send({success: false, message:"Request is accepted by another captain."})
+        }
+
+        ride.status = 'Accepted';
+        ride.captainId = req.id;
+        await ride.save();
+
+       res.send({success: true, message:"Ride accepted!"})
+
+    }catch(err){
+        res.send({success: false, message:"Server Error!"})
+    }
+}
+
+export const otpVerification = async(req, res) =>{
+    const id = req.params.id;
+    const { otp } = req.body;
+
+    try{
+
+        const ride = await Ride.findById(id);
+
+        if(!ride){
+            return res.send({success: false, message:"Ride not found."})
+        }
+
+        if(ride.status === 'Accepted'){
+            if(ride.otp === otp){
+                ride.status = 'Ride Started';
+                await ride.save();
+                res.send({success: true, message:"Ride Started."})
+            }else{
+                return res.send({success: false, message:"Invalid Otp"})
+            }
+
+        }else{
+            return res.send({success: false, message:"Request should accepted."})
+        }
+
+        
+
+    }catch(err){
+        res.send({success: false, message:"Server Error!"})
+    }
+}
+
+export const endRideorRejectRide = async(req, res) =>{
+    const id = req.params.id;
+    const {status} = req.body;
+
+    try{
+
+        const ride = await Ride.findById(id);
+
+        if(!ride){
+            return res.send({success: false, message:"Ride not found."})
+        }
+
+        ride.status = status;
+        ride.captainId = req.id;
+        await ride.save();
+
+       res.send({success: true, message: status === 'Completed' ? 'Ride successfully completed' : 'Ride rejected'})
+
+    }catch(err){
+        res.send({success: false, message:"Server Error!"})
+    }
 }
