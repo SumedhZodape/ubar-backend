@@ -28,7 +28,6 @@ export const registerCaptain = async (req, res) =>{
 
      const profilePic = req.files?.profilePic[0].filename;
      const vehiclePic = req.files?.vehiclePic[0].filename;
-     console.log(location)
      let parsedLocation;
 
      try{

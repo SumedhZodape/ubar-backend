@@ -172,3 +172,20 @@ export const bookCab = async(req, res)=>{
 
 
 }
+
+
+export const rejectRide = async(req, res) =>{
+    const rideId = req.params.id;
+
+    try{
+
+        const ride = await Ride.findById(rideId);
+
+        ride.status = 'Cancelled';
+        await ride.save();
+        res.send({success: true, message:"Ride Cancelled"})
+
+    }catch(err){
+        res.send({success: false, message: "Server Error!"})
+    }
+}
