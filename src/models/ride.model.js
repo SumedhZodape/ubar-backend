@@ -24,7 +24,7 @@ const rideSchema = new mongoose.Schema({
     price: {type: Number, required: true},
     status: {
         type: String,
-        enum:['Requested', 'Accepted', 'Ride Started', 'Completed', 'Cancelled'],
+        enum:['Requested', 'Accepted', 'Arrived', 'Ride Started', 'Completed', 'Cancelled'],
         default: 'Requested'
     },
     vehicleType: {

@@ -189,3 +189,27 @@ export const rejectRide = async(req, res) =>{
         res.send({success: false, message: "Server Error!"})
     }
 }
+
+export const getRideInfo = async(req, res) =>{
+
+    const userId = req.id;
+
+    try {
+        
+        const ride = await Ride.find({userId});
+
+        if(!ride){
+            return res.send({success: false, message:"Ride not found."})
+        }
+
+        const currentRide = ride.find((ele)=>ele.status !== "Completed" || ele.status !=="Cancelled")
+
+        console.log(currentRide)
+
+        res.send({success: true, result: currentRide})
+
+    } catch (error) {
+        console.log(error)
+        res.send({success: false, message:"Server Error!"})
+    }
+}

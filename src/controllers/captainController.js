@@ -181,7 +181,7 @@ export const otpVerification = async(req, res) =>{
             return res.send({success: false, message:"Ride not found."})
         }
 
-        if(ride.status === 'Accepted'){
+        if(ride.status === 'Arrived'){
             if(ride.otp === otp){
                 ride.status = 'Ride Started';
                 await ride.save();
@@ -221,5 +221,39 @@ export const endRideorRejectRide = async(req, res) =>{
 
     }catch(err){
         res.send({success: false, message:"Server Error!"})
+    }
+}
+
+export const getAcceptedRide = async(req, res) =>{
+
+    const status = req.params.status;
+    const captainId = req.id;
+
+    try {
+        const ride = await Ride.find({$and:[{captainId},{status: {$ne: "Requested"}}, {status: {$ne: "Cancelled"}}, {status: {$ne: "Completed"}}]}).populate('userId');
+        console.log(ride)
+
+        res.send({success: true, result: ride})
+
+    } catch (error) {
+        res.send({success: false, message:"Server Error!"})
+    }
+}
+
+export const updateRideStatus = async(req, res)=>{
+    const { id } = req.params;
+    const status = req.body.status;
+
+    try {
+        const ride = await Ride.findById(id);
+        if(!ride){
+            return res.send({success: false, message:"Ride not found."})
+        }
+
+        ride.status = status;
+        await ride.save()
+        res.send({success: true, message: `${status} updated`, status: ride.status})
+    } catch (error) {
+         res.send({success: false, message:"Server Error!"})
     }
 }
