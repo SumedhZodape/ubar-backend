@@ -114,7 +114,8 @@ export const login = async(req, res)=>{
            res.send({
                success: true,
                message: "Captain Logged in successfully",
-               token: token
+               token: token, 
+               userID: captain._id
            })
    
        }catch(err){

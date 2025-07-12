@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import {config} from '../config/env.js';
 import { calculateDistance } from '../utils/calculateDistance.js';
 import sendMail from '../utils/mail.js';
+import  { io, connectedUser } from '../app.js'
 
 export const register = async(req, res)=>{
     const {
@@ -72,7 +73,8 @@ export const login = async(req, res)=>{
         res.send({
             success: true,
             message: "User Logged in successfully",
-            token: token
+            token: token,
+            userID: user._id
         })
 
     }catch(err){
@@ -146,6 +148,10 @@ export const bookCab = async(req, res)=>{
 
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
+        console.log(captains)
+
+        
+
         const ride = new Ride({
             userId,
             startLocation,
@@ -157,6 +163,23 @@ export const bookCab = async(req, res)=>{
         })
 
         await ride.save()
+
+        let rideRequestNotificaiton = 0; 
+
+        captains.forEach((captain)=>{
+            const socketId = connectedUser.get(captain._id);
+            if(socketId){
+                io.to(socketId).emit('rideRequest', {
+                    from: userId,
+                    ride: ride,
+                    message:"New Ride Request"
+                })
+
+                rideRequestNotificaiton ++;
+            }
+        })
+
+        console.log(rideRequestNotificaiton)
 
         await sendMail({
             to: captains[0].email,
