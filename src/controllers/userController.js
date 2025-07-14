@@ -167,9 +167,10 @@ export const bookCab = async(req, res)=>{
         let rideRequestNotificaiton = 0; 
 
         captains.forEach((captain)=>{
-            const socketId = connectedUser.get(captain._id);
+            const captainId = captain._id.toString();
+            const socketId = connectedUser.get(captainId);
             if(socketId){
-                io.to(socketId).emit('rideRequest', {
+                io.to(socketId).emit('sendNotification', {
                     from: userId,
                     ride: ride,
                     message:"New Ride Request"

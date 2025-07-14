@@ -34,14 +34,14 @@ io.on('connection', (socket)=>{
         console.log(`Registered user ${userId} with socket ID ${socket.id}`)
     })
 
-    socket.on('disconnect', () =>{
-        for(et [userId, id] of connectedUser.entries()){
-            if(id == socket.id){
-                connectedUser.delete(userId)
-            }
-        }
-        console.log('Client disconnected:', socket.id)
-    })
+    // socket.on('disconnect', () =>{
+    //     for(socket [userId, id] of connectedUser.entries()){
+    //         if(id == socket.id){
+    //             connectedUser.delete(userId)
+    //         }
+    //     }
+    //     console.log('Client disconnected:', socket.id)
+    // })
 
 })
 

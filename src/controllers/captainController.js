@@ -3,6 +3,7 @@ import sendMail from '../utils/mail.js'
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { config } from '../config/env.js';
+import  { io, connectedUser } from '../app.js'
 
 // register
 export const registerCaptain = async (req, res) =>{
@@ -249,6 +250,20 @@ export const updateRideStatus = async(req, res)=>{
         const ride = await Ride.findById(id);
         if(!ride){
             return res.send({success: false, message:"Ride not found."})
+        }
+
+        console.log(ride.userId)
+        const userId = ride.userId.toString();
+
+        console.log(userId)
+        const socketId = connectedUser.get(userId);
+         if(socketId){
+            io.to(socketId).emit('acceptNotification', {
+                from: req.id,
+                ride: ride,
+                message:"Ride Accepted"
+            })
+
         }
 
         ride.status = status;
